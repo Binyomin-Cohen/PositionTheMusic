@@ -34,8 +34,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         String theEvent = "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2];
         tv.setText(theEvent);
-        if(event.values[2] > 0.4 && event.values[2] < 0.5){
-            mediaPlayer = MediaPlayer.create(context, R.raw.coughsound);
+        double zval = event.values[2];
+        if(zval > 0.1 && zval < 0.9){
+            if(zval < 0.4){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice002);
+            }
+            else if(zval < 0.6){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice003);
+            }
+            else if(zval < 0.9){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice004);
+            }
+
             mediaPlayer.start();
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
