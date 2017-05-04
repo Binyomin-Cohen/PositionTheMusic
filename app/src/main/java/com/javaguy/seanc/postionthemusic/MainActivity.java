@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mOrientation;
     TextView tv;
+    TextView tv2;
     MediaPlayer mediaPlayer;
     Context context = this;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         tv = (TextView)findViewById(R.id.tv);
+        tv2 = (TextView)findViewById(R.id.tv2);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
@@ -32,18 +34,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        String theEvent = "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2];
-        tv.setText(theEvent);
+
+        tv.setText(" z:   " + event.values[2]);
+        tv2.setText("x: " + event.values[0] + " y: " + event.values[1] );
         double zval = event.values[2];
         if(zval > 0.1 && zval < 0.9){
-            if(zval < 0.4){
+            if(zval < 0.15){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice001);
+            }
+            else if(zval < 0.30){
                 mediaPlayer = MediaPlayer.create(context, R.raw.voice002);
             }
-            else if(zval < 0.6){
+            else if(zval < 0.45){
                 mediaPlayer = MediaPlayer.create(context, R.raw.voice003);
             }
-            else if(zval < 0.9){
+            else if(zval < 0.60){
                 mediaPlayer = MediaPlayer.create(context, R.raw.voice004);
+            }
+            else if(zval < 0.80){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice005);
+            }
+            else if(zval < 0.999){
+                mediaPlayer = MediaPlayer.create(context, R.raw.voice006);
             }
 
             mediaPlayer.start();
