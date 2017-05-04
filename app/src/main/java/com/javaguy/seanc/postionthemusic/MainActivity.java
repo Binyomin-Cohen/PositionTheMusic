@@ -10,6 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager mSensorManager;
@@ -18,16 +22,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView tv2;
     MediaPlayer mediaPlayer;
     Context context = this;
+    int currentResourceId;
+    Integer[] soundFiles;
+    List<Integer> soundFilesList;
+    Double[] maxZvals;
+    List<Double> maxZvalsList;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        currentResourceId = R.raw.voice001;
         tv = (TextView)findViewById(R.id.tv);
         tv2 = (TextView)findViewById(R.id.tv2);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+        soundFiles = new Integer[]{R.raw.voice001,R.raw.voice002,R.raw.voice003, R.raw.voice004, R.raw.voice005, R.raw.voice006 };
+        soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
+        maxZvals = new Double[]{0.2, 0.4, 0.6, 0.75, 0.85, 0.99};
+        maxZvalsList = new ArrayList<Double>(Arrays.asList(maxZvals));
+
+        mediaPlayer = MediaPlayer.create(context, soundFilesList.get(0));
 
 
     }
@@ -38,36 +56,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv.setText(" z:   " + event.values[2]);
         tv2.setText("x: " + event.values[0] + " y: " + event.values[1] );
         double zval = event.values[2];
-        if(zval > 0.1 && zval < 0.9){
-            if(zval < 0.15){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice001);
-            }
-            else if(zval < 0.30){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice002);
-            }
-            else if(zval < 0.45){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice003);
-            }
-            else if(zval < 0.60){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice004);
-            }
-            else if(zval < 0.80){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice005);
-            }
-            else if(zval < 0.999){
-                mediaPlayer = MediaPlayer.create(context, R.raw.voice006);
+
+;
+        for(int i = 0; i < maxZvalsList.size(); i++){
+            if(zval < maxZvalsList.get(i)){{
+                if(currentResourceId != soundFilesList.get(i)) {
+                    currentResourceId = soundFilesList.get(i);
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                    mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
+                    mediaPlayer.start();
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.reset();
+                            mp.release();
+                            mp = null;
+                        }
+                    });
+                }
+                break;
             }
 
-            mediaPlayer.start();
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.reset();
-                    mp.release();
-                    mp = null;
-                }
-            });
+            }
         }
+
     }
 
     @Override
