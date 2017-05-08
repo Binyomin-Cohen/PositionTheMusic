@@ -1,5 +1,6 @@
 package com.javaguy.seanc.postionthemusic;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,6 +10,7 @@ import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -20,13 +22,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mOrientation;
     TextView tv;
-    TextView tv2;
     MediaPlayer mediaPlayer;
     Context context = this;
     int currentResourceId;
     Integer[] soundFiles;
     List<Integer> soundFilesList;
     List<Double> maxZvalsList;
+    ImageView imageView;
+    ObjectAnimator animator;
 
 
 
@@ -35,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         currentResourceId = R.raw.voice001;
+        imageView = (ImageView)findViewById(R.id.noteCircle);
         tv = (TextView)findViewById(R.id.tv);
-        tv2 = (TextView)findViewById(R.id.tv2);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             maxZvalsList.add(maxZVal);
             maxZVal += rangeOfNote;
         }
+
+
+
         Log.d("ZValList", maxZvalsList.toString());
 
         mediaPlayer = MediaPlayer.create(context, soundFilesList.get(0));
@@ -64,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
 
         tv.setText(" z:   " + event.values[2]);
-        tv2.setText("x: " + event.values[0] + " y: " + event.values[1] );
         double zval = event.values[2];
 
 ;
@@ -84,6 +89,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
                     mediaPlayer.seekTo(400);
                     mediaPlayer.start();
+                    float howMuch = 180 * (float)zval;
+                    animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
+                    animator.setDuration(100);
+                    animator.start();
+
                     mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
