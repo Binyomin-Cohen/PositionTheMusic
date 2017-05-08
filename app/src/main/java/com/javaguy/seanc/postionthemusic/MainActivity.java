@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int currentResourceId;
     Integer[] soundFiles;
     List<Integer> soundFilesList;
-    Double[] maxZvals;
     List<Double> maxZvalsList;
 
 
@@ -44,8 +43,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         soundFiles = new Integer[]{R.raw.voice001,R.raw.voice002,R.raw.voice003, R.raw.voice004, R.raw.voice005,
                 R.raw.voice006, R.raw.voice007,R.raw.voice008,R.raw.voice009, R.raw.voice010, R.raw.voice011, R.raw.voice012};
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
-        maxZvals = new Double[]{ -0.8, -0.6, -0.4, -0.2, 0.01, 0.2, 0.35, 0.45, 0.6, 0.75, 0.85, 0.99};
-        maxZvalsList = new ArrayList<Double>(Arrays.asList(maxZvals));
+        int numOfSounds = soundFiles.length;
+        Log.d("numOfSounds", ((Integer)numOfSounds).toString());
+        double rangeOfNote = 2.0 / numOfSounds;
+        Log.d("rangeOfNote", ((Double)rangeOfNote).toString());
+        maxZvalsList = new ArrayList<Double>();
+        double maxZVal = -0.99 + rangeOfNote;
+        for(int i = 0; i < numOfSounds; i ++ ){
+            maxZvalsList.add(maxZVal);
+            maxZVal += rangeOfNote;
+        }
+        Log.d("ZValList", maxZvalsList.toString());
 
         mediaPlayer = MediaPlayer.create(context, soundFilesList.get(0));
 
