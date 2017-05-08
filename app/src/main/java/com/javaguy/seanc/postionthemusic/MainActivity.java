@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,9 +41,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
-        soundFiles = new Integer[]{R.raw.voice001,R.raw.voice002,R.raw.voice003, R.raw.voice004, R.raw.voice005, R.raw.voice006 };
+        soundFiles = new Integer[]{R.raw.voice001,R.raw.voice002,R.raw.voice003, R.raw.voice004, R.raw.voice005,
+                R.raw.voice006, R.raw.voice007,R.raw.voice008,R.raw.voice009, R.raw.voice010, R.raw.voice011, R.raw.voice012};
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
-        maxZvals = new Double[]{0.2, 0.4, 0.6, 0.75, 0.85, 0.99};
+        maxZvals = new Double[]{ -0.8, -0.6, -0.4, -0.2, 0.01, 0.2, 0.35, 0.45, 0.6, 0.75, 0.85, 0.99};
         maxZvalsList = new ArrayList<Double>(Arrays.asList(maxZvals));
 
         mediaPlayer = MediaPlayer.create(context, soundFilesList.get(0));
@@ -62,16 +64,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if(zval < maxZvalsList.get(i)){{
                 if(currentResourceId != soundFilesList.get(i)) {
                     currentResourceId = soundFilesList.get(i);
-                    mediaPlayer.reset();
-                    mediaPlayer.release();
+                    if(mediaPlayer != null){
+                        try {
+                            mediaPlayer.reset();
+                            mediaPlayer.release();
+                        }
+                        catch(IllegalStateException ise){
+                            ise.printStackTrace();
+                        }
+                    }
                     mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
+                    mediaPlayer.seekTo(400);
                     mediaPlayer.start();
                     mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
                             mp.reset();
                             mp.release();
-                            mp = null;
                         }
                     });
                 }
