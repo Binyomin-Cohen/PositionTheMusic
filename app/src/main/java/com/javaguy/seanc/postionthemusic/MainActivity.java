@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
-        soundFiles = new Integer[]{R.raw.voice001,R.raw.voice002,R.raw.voice003, R.raw.voice004, R.raw.voice005,
-                R.raw.voice006, R.raw.voice007,R.raw.voice008,R.raw.voice009, R.raw.voice010, R.raw.voice011, R.raw.voice012};
+        soundFiles = new Integer[]{R.raw.voice012,R.raw.voice011,R.raw.voice010, R.raw.voice009, R.raw.voice008,
+                R.raw.voice007, R.raw.voice006,R.raw.voice005,R.raw.voice004, R.raw.voice003, R.raw.voice002, R.raw.voice001};
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
         int numOfSounds = soundFiles.length;
         Log.d("numOfSounds", ((Integer)numOfSounds).toString());
@@ -72,6 +72,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv.setText(" z:   " + event.values[2]);
         double zval = event.values[2];
 
+        float howMuch = 180 * ( (float)zval + 1 );
+        animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
+        animator.setDuration(100);
+        animator.start();
+
 ;
         for(int i = 0; i < maxZvalsList.size(); i++){
             if(zval < maxZvalsList.get(i)){{
@@ -89,10 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
                     mediaPlayer.seekTo(400);
                     mediaPlayer.start();
-                    float howMuch = 180 * (float)zval;
-                    animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
-                    animator.setDuration(100);
-                    animator.start();
+
 
                     mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
