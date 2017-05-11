@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView tv2;
     MediaPlayer mediaPlayer;
     Context context = this;
+
     int currentResourceId;
     Integer[] soundFiles;
     List<Integer> soundFilesList;
@@ -91,30 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ;
             for(int i = 0; i < maxZvalsList.size(); i++){
                 if(zval < maxZvalsList.get(i)){{
-                    if(currentResourceId != soundFilesList.get(i)  && getAccelerometerZVal() < -5) {
-                        currentResourceId = soundFilesList.get(i);
-                        if(mediaPlayer != null){
-                            try {
-                                mediaPlayer.reset();
-                                mediaPlayer.release();
-                            }
-                            catch(IllegalStateException ise){
-                                ise.printStackTrace();
-                            }
-                        }
-                        mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
-                        mediaPlayer.seekTo(400);
-                        mediaPlayer.start();
-
-
-                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer mp) {
-                                mp.reset();
-                                mp.release();
-                            }
-                        });
-                    }
+                    setCurrentResourceId(soundFilesList.get(i));
                     break;
                 }
 
@@ -122,7 +100,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
         else {
+            float previousAccelerometerZ = getAccelerometerZVal();
             setAccelerometerZVal(event.values[2]);
+            if(previousAccelerometerZ > - 5 && getAccelerometerZVal() < -5){
+                if(mediaPlayer != null){
+                    try {
+                        mediaPlayer.reset();
+                        mediaPlayer.release();
+                    }
+                    catch(IllegalStateException ise){
+                        ise.printStackTrace();
+                    }
+                }
+                mediaPlayer = MediaPlayer.create(context, getCurrentResourceId());
+                mediaPlayer.seekTo(400);
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.reset();
+                        mp.release();
+                    }
+                });
+            }
 
             Log.d("madeIt", "hello we got to linearthing " + event.sensor.toString());
 
@@ -150,6 +150,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
+
+    public int getCurrentResourceId() {
+        return currentResourceId;
+    }
+
+    public void setCurrentResourceId(int currentResourceId) {
+        this.currentResourceId = currentResourceId;
+    }
+
     public float getAccelerometerZVal() {
         return accelerometerZVal;
     }
