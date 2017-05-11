@@ -21,7 +21,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager mSensorManager;
     private Sensor mOrientation;
+    private Sensor mAcceleration;
     TextView tv;
+    TextView tv2;
     MediaPlayer mediaPlayer;
     Context context = this;
     int currentResourceId;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     List<Double> maxZvalsList;
     ImageView imageView;
     ObjectAnimator animator;
+
+    private float accelerometerZVal = 0;
 
 
 
@@ -40,8 +44,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         currentResourceId = R.raw.voice001;
         imageView = (ImageView)findViewById(R.id.noteCircle);
         tv = (TextView)findViewById(R.id.tv);
+        tv2 = (TextView)findViewById(R.id.tv2);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        Log.d("isLinearAccelartionNull", ((Boolean)(mAcceleration == null)).toString());
+
+        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        Log.d("deviceSensors", deviceSensors.toString());
 
         soundFiles = new Integer[]{R.raw.voice012,R.raw.voice011,R.raw.voice010, R.raw.voice009, R.raw.voice008,
                 R.raw.voice007, R.raw.voice006,R.raw.voice005,R.raw.voice004, R.raw.voice003, R.raw.voice002, R.raw.voice001};
@@ -69,46 +79,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        tv.setText(" z:   " + event.values[2]);
-        double zval = event.values[2];
+        if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
+            tv.setText(" z:   " + event.values[2]);
+            double zval = event.values[2];
 
-        float howMuch = 180 * ( (float)zval + 1 );
-        animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
-        animator.setDuration(100);
-        animator.start();
+            float howMuch = 180 * ( (float)zval + 1 );
+            animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
+            animator.setDuration(100);
+            animator.start();
 
-;
-        for(int i = 0; i < maxZvalsList.size(); i++){
-            if(zval < maxZvalsList.get(i)){{
-                if(currentResourceId != soundFilesList.get(i)) {
-                    currentResourceId = soundFilesList.get(i);
-                    if(mediaPlayer != null){
-                        try {
-                            mediaPlayer.reset();
-                            mediaPlayer.release();
+            ;
+            for(int i = 0; i < maxZvalsList.size(); i++){
+                if(zval < maxZvalsList.get(i)){{
+                    if(currentResourceId != soundFilesList.get(i)  && getAccelerometerZVal() < -5) {
+                        currentResourceId = soundFilesList.get(i);
+                        if(mediaPlayer != null){
+                            try {
+                                mediaPlayer.reset();
+                                mediaPlayer.release();
+                            }
+                            catch(IllegalStateException ise){
+                                ise.printStackTrace();
+                            }
                         }
-                        catch(IllegalStateException ise){
-                            ise.printStackTrace();
-                        }
+                        mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
+                        mediaPlayer.seekTo(400);
+                        mediaPlayer.start();
+
+
+                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mp) {
+                                mp.reset();
+                                mp.release();
+                            }
+                        });
                     }
-                    mediaPlayer = MediaPlayer.create(context, soundFilesList.get(i));
-                    mediaPlayer.seekTo(400);
-                    mediaPlayer.start();
-
-
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            mp.reset();
-                            mp.release();
-                        }
-                    });
+                    break;
                 }
-                break;
-            }
 
+                }
             }
         }
+        else {
+            setAccelerometerZVal(event.values[2]);
+
+            Log.d("madeIt", "hello we got to linearthing " + event.sensor.toString());
+
+            tv2.setText("0: " + event.values[0] + "  1: " + event.values[1] + "  2: " + event.values[2]);
+        }
+
+
 
     }
 
@@ -121,11 +142,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onResume(){
         super.onResume();
         mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause(){
         super.onPause();
         mSensorManager.unregisterListener(this);
+    }
+    public float getAccelerometerZVal() {
+        return accelerometerZVal;
+    }
+
+    public void setAccelerometerZVal(float accelerometerZVal) {
+        this.accelerometerZVal = accelerometerZVal;
     }
 }
