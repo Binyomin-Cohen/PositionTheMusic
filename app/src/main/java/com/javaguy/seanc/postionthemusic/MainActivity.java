@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mOrientation;
     private Sensor mAcceleration;
+    private Sensor mProximitySensor;
+
     TextView tv;
     TextView tv2;
     MediaPlayer mediaPlayer;
@@ -35,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ObjectAnimator animator;
 
     private float accelerometerZVal = 0;
+
+
+    private float proximityVal = 0;
+
     MediaPlayer[] mediaPlayers ;
 
 
@@ -43,13 +49,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         currentResourceId = R.raw.snare;
-        imageView = (ImageView)findViewById(R.id.noteCircle);
+        imageView = (ImageView)findViewById(R.id.drumset);
         tv = (TextView)findViewById(R.id.tv);
         tv2 = (TextView)findViewById(R.id.tv2);
+
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         mediaPlayers = new MediaPlayer[10];
 
@@ -61,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       //  soundFiles = new Integer[]{R.raw.voice012,R.raw.voice011,R.raw.voice010, R.raw.voice009, R.raw.voice008,
        //         R.raw.voice007, R.raw.voice006,R.raw.voice005,R.raw.voice004, R.raw.voice003, R.raw.voice002, R.raw.voice001};
 
-        soundFiles = new Integer[]{R.raw.bassdrum, R.raw.floortom, R.raw.snare, R.raw.ridecym};
+        soundFiles = new Integer[]{R.raw.bassdrumbeg, R.raw.floortom, R.raw.snarebeg, R.raw.ridecymbeg};
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
         int numOfSounds = soundFiles.length;
         Log.d("numOfSounds", ((Integer)numOfSounds).toString());
@@ -86,7 +95,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
+        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            tv2.setText(" " + event.values[0] + " , " +  + event.values[1] + " , "  + event.values[2] + "  " );
+            if(event.values[0] < 1 && getProximityVal() >=1) {
+
+                for (int i = 0; i < mediaPlayers.length; ++i) {
+                    if (mediaPlayers[i] == null) {
+                        mediaPlayer = MediaPlayer.create(context, getCurrentResourceId());
+                        mediaPlayer.start();
+                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mp) {
+                                mp.reset();
+                                mp.release();
+                                mp = null;
+                            }
+                        });
+                        break;
+                    }
+                }
+            }
+            setProximityVal(event.values[0]);
+        }
+        else if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
             tv.setText(" rotation value:   " + (event.values[2] + 1) * 10 );
             double zval = event.values[2];
 
@@ -107,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
         }
-        else {
+   /*     else {
             float previousAccelerometerZ = getAccelerometerZVal();
             setAccelerometerZVal(event.values[2]);
             if(previousAccelerometerZ > -3 && getAccelerometerZVal() < -3){
@@ -131,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
 
-            tv2.setText("accelerometer value  " + event.values[2]);
-        }
+           // tv2.setText("accelerometer value  " + event.values[2]);
+        }*/
 
 
 
@@ -148,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -170,5 +202,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void setAccelerometerZVal(float accelerometerZVal) {
         this.accelerometerZVal = accelerometerZVal;
+    }
+
+    public float getProximityVal() {
+        return proximityVal;
+    }
+
+    public void setProximityVal(float proximityVal) {
+        this.proximityVal = proximityVal;
     }
 }

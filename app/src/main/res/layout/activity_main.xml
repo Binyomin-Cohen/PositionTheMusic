@@ -39,7 +39,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/noteCircle"
+        android:id="@+id/drumset"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/notecircle" />
+        android:src="@drawable/drums" />
 </LinearLayout>
