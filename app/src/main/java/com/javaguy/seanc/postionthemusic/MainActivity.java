@@ -70,12 +70,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       //  soundFiles = new Integer[]{R.raw.voice012,R.raw.voice011,R.raw.voice010, R.raw.voice009, R.raw.voice008,
        //         R.raw.voice007, R.raw.voice006,R.raw.voice005,R.raw.voice004, R.raw.voice003, R.raw.voice002, R.raw.voice001};
 
-        soundFiles = new Integer[]{R.raw.bassdrumbeg, R.raw.floortom, R.raw.snarebeg, R.raw.ridecymbeg};
+        soundFiles = new Integer[]{ R.raw.floortom,  R.raw.ridecymbeg, R.raw.snarebeg, R.raw.bassdrumbeg};
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
         int numOfSounds = soundFiles.length;
         Log.d("numOfSounds", ((Integer)numOfSounds).toString());
-        double rangeOfNote = 2.0 / numOfSounds;
+
+        //the rotation vector values have a range of 2, ie from -1 to 1
+        //double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
+        double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
         //double rangeOfNote = 0.25;
+
         Log.d("rangeOfNote", ((Double)rangeOfNote).toString());
         maxZvalsList = new ArrayList<Double>();
         double maxZVal = -0.99 + rangeOfNote;
@@ -95,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY && getCurrentResourceId() > 0) {
             tv2.setText(" " + event.values[0] + " , " +  + event.values[1] + " , "  + event.values[2] + "  " );
             if(event.values[0] < 1 && getProximityVal() >=1) {
 
@@ -118,24 +122,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             setProximityVal(event.values[0]);
         }
         else if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
-            tv.setText(" rotation value:   " + (event.values[2] + 1) * 10 );
+            tv.setText(" rotation value:   " + event.values[2] );
             double zval = event.values[2];
 
 
-            float howMuch = 180 * ( (float)zval + 1 );
+            float howMuch = 180 * ( (float)zval + 1 ) - 90;
             animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
             animator.setDuration(10);
             animator.start();
 
 
             ;
+            boolean withinRangeOfOfZvals = false;
             for(int i = 0; i < maxZvalsList.size(); i++){
                 if(zval < maxZvalsList.get(i)){{
                     setCurrentResourceId(soundFilesList.get(i));
+                    withinRangeOfOfZvals = true;
                     break;
                 }
 
                 }
+            }
+            if(!withinRangeOfOfZvals){
+                setCurrentResourceId(0);
             }
         }
    /*     else {
