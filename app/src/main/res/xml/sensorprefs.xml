@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference     android:title="Download Details"
+        android:summary="Select the kind of sensor you would like"
+        android:key="downloadType"
+        android:defaultValue="1"
+        android:entries="@array/sensorArray"
+        android:entryValues="@array/sensorArrayValues" />
+</PreferenceScreen>
