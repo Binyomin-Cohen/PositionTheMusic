@@ -17,7 +17,8 @@
         android:text="Large Text"
         android:id="@+id/tv"
         android:layout_gravity="center_horizontal"
-        android:textSize="100px" />
+        android:textSize="100px"
+        android:visibility="invisible" />
 
 
     <TextView
@@ -26,7 +27,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Degrees"
         android:id="@+id/tv2"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible" />
 
     <ImageView
         android:layout_width="wrap_content"
