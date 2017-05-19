@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mProximitySensor;
 
     TextView tv;
-    TextView tv2;
+
     MediaPlayer mediaPlayer;
     Context context = this;
 
@@ -52,15 +52,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        currentResourceId = R.raw.snare;
+        currentResourceId = R.raw.floortom;
         imageView = (ImageView)findViewById(R.id.drumset);
         tv = (TextView)findViewById(R.id.tv);
-        tv2 = (TextView)findViewById(R.id.tv2);
+
 
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+       // mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         mediaPlayers = new MediaPlayer[10];
 
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY && getCurrentResourceId() > 0) {
+  /*      if(event.sensor.getType() == Sensor.TYPE_PROXIMITY && getCurrentResourceId() > 0) {
             tv2.setText(" " + event.values[0] + " , " +  + event.values[1] + " , "  + event.values[2] + "  " );
             if(event.values[0] < 1 && getProximityVal() >=1) {
 
@@ -128,10 +128,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
             setProximityVal(event.values[0]);
-        }
-        else if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
-            tv.setText(" rotation value:   " + event.values[2] );
+        }*/
+        //else
+        if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
+
             double zval = event.values[2];
+
+            tv.setText(" " + 180 * (1 + zval)  );
 
 
             float howMuch = 180 * ( (float)zval + 1 ) - 90;
@@ -155,10 +158,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 setCurrentResourceId(0);
             }
         }
-   /*     else {
+        else {
             float previousAccelerometerZ = getAccelerometerZVal();
             setAccelerometerZVal(event.values[2]);
-            if(previousAccelerometerZ > -3 && getAccelerometerZVal() < -3){
+            if( currentResourceId > 0 &&  previousAccelerometerZ > -7 && getAccelerometerZVal() < -7){
                 for(int i = 0; i < mediaPlayers.length; ++i){
                     if(mediaPlayers[i] == null){
                         mediaPlayer = MediaPlayer.create(context, getCurrentResourceId());
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
            // tv2.setText("accelerometer value  " + event.values[2]);
-        }*/
+        }
 
 
 
@@ -195,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onResume(){
         super.onResume();
         mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAcceleration, SensorManager.SENSOR_DELAY_FASTEST);
+      //  mSensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
