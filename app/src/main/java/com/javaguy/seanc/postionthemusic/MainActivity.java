@@ -35,13 +35,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Integer[] soundFiles;
     List<Integer> soundFilesList;
     List<Double> maxZvalsList;
-    ImageView imageView;
-    ObjectAnimator animator;
 
     private float accelerometerZVal = 0;
 
-
-    private float proximityVal = 0;
 
     MediaPlayer[] mediaPlayers ;
 
@@ -53,14 +49,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         currentResourceId = R.raw.floortom;
-        imageView = (ImageView)findViewById(R.id.drumset);
         tv = (TextView)findViewById(R.id.tv);
 
 
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-       // mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
 
         mediaPlayers = new MediaPlayer[10];
 
@@ -79,15 +74,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //the rotation vector values have a range of 2, ie from -1 to 1
         //double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
-        double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
+        double rangeOfNote = 2.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
         //double rangeOfNote = 0.25;
 
         Log.d("rangeOfNote", ((Double)rangeOfNote).toString());
         maxZvalsList = new ArrayList<Double>();
-        double maxZVal = -0.99 + rangeOfNote;
+        double maxZVal = -0.99;
         for(int i = 0; i < numOfSounds; i ++ ){
-            maxZvalsList.add(maxZVal);
             maxZVal += rangeOfNote;
+            maxZvalsList.add(maxZVal);
+
         }
 
 
@@ -134,28 +130,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             double zval = event.values[2];
 
-            tv.setText(" " + 180 * (1 + zval)  );
-
-
-            float howMuch = 180 * ( (float)zval + 1 ) - 90;
-            animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
-            animator.setDuration(10);
-            animator.start();
-
-
+            tv.setText(" " + ((int)Math.round(180 * (1 + zval) )) );
             ;
-            boolean withinRangeOfOfZvals = false;
             for(int i = 0; i < maxZvalsList.size(); i++){
-                if(zval < maxZvalsList.get(i)){{
+                if(zval < maxZvalsList.get(i)) {
                     setCurrentResourceId(soundFilesList.get(i));
-                    withinRangeOfOfZvals = true;
                     break;
                 }
-
-                }
-            }
-            if(!withinRangeOfOfZvals){
-                setCurrentResourceId(0);
             }
         }
         else {
@@ -224,11 +205,4 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.accelerometerZVal = accelerometerZVal;
     }
 
-    public float getProximityVal() {
-        return proximityVal;
-    }
-
-    public void setProximityVal(float proximityVal) {
-        this.proximityVal = proximityVal;
-    }
 }
