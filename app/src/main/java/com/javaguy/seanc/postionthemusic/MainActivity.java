@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mediaPlayers = new MediaPlayer[10];
 
-        soundFiles = new Integer[]{ R.raw.voice006, R.raw.snarebeg, R.raw.bassdrumbeg, R.raw.ridecymbeg, R.raw.floortom };
+        soundFiles = new Integer[]{ R.raw.hihat, R.raw.snarebeg, R.raw.finalbass, R.raw.ridecymbeg, R.raw.floortom };
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
         int numOfSounds = soundFiles.length;
 
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             double zval = event.values[2];
 
-            tv.setText(" " + 180 * (1 + zval)  );
+          //  tv.setText(" " + zval  );
 
 
             float howMuch = 180 * ( (float)zval + 1 ) - 90;
