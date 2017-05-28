@@ -35,13 +35,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:layout_gravity="center_horizontal"
-        android:src="@android:drawable/arrow_down_float"
+        android:src="@drawable/drumpbalt"
         android:layout_marginTop="80px" />
 
-    <ImageView
-        android:layout_width="wrap_content"
+    <SeekBar
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/drumset"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/drums" />
+        android:id="@+id/seekBar" />
+
 </LinearLayout>

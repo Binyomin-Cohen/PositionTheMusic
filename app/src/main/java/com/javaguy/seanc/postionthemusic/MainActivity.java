@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mProximitySensor;
 
     TextView tv;
+    ImageView imageView;
+
+    SeekBar seekBar;
 
     MediaPlayer mediaPlayer;
     Context context = this;
@@ -35,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Integer[] soundFiles;
     List<Integer> soundFilesList;
     List<Double> maxZvalsList;
-    ImageView imageView;
     ObjectAnimator animator;
 
     private float accelerometerZVal = 0;
@@ -53,8 +56,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         currentResourceId = R.raw.floortom;
-        imageView = (ImageView)findViewById(R.id.drumset);
+
         tv = (TextView)findViewById(R.id.tv);
+        seekBar = (SeekBar)findViewById(R.id.seekBar);
 
 
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -64,25 +68,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mediaPlayers = new MediaPlayer[10];
 
-        Log.d("isLinearAccelartionNull", ((Boolean)(mAcceleration == null)).toString());
-
-        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-        Log.d("deviceSensors", deviceSensors.toString());
-
-      //  soundFiles = new Integer[]{R.raw.voice012,R.raw.voice011,R.raw.voice010, R.raw.voice009, R.raw.voice008,
-       //         R.raw.voice007, R.raw.voice006,R.raw.voice005,R.raw.voice004, R.raw.voice003, R.raw.voice002, R.raw.voice001};
-
-        soundFiles = new Integer[]{ R.raw.floortom,  R.raw.ridecymbeg, R.raw.snarebeg, R.raw.bassdrumbeg};
+        soundFiles = new Integer[]{ R.raw.voice006, R.raw.snarebeg, R.raw.bassdrumbeg, R.raw.ridecymbeg, R.raw.floortom };
         soundFilesList = new ArrayList<Integer>(Arrays.asList(soundFiles));
         int numOfSounds = soundFiles.length;
-        Log.d("numOfSounds", ((Integer)numOfSounds).toString());
+
 
         //the rotation vector values have a range of 2, ie from -1 to 1
-        //double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
-        double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
-        //double rangeOfNote = 0.25;
+        double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
+      //  double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
 
-        Log.d("rangeOfNote", ((Double)rangeOfNote).toString());
         maxZvalsList = new ArrayList<Double>();
         double maxZVal = -0.99 + rangeOfNote;
         for(int i = 0; i < numOfSounds; i ++ ){
@@ -97,12 +91,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     }
-    @Override
+/*    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.mainmenu, menu);
         return true;
-    }
+    }*/
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -138,20 +132,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
             float howMuch = 180 * ( (float)zval + 1 ) - 90;
-            animator = ObjectAnimator.ofFloat(imageView, "rotation", howMuch);
-            animator.setDuration(10);
-            animator.start();
 
+            seekBar.setProgress(Math.round((float)((zval + 1) * 50)));
 
             ;
             boolean withinRangeOfOfZvals = false;
             for(int i = 0; i < maxZvalsList.size(); i++){
-                if(zval < maxZvalsList.get(i)){{
+                if(zval < maxZvalsList.get(i)){
                     setCurrentResourceId(soundFilesList.get(i));
                     withinRangeOfOfZvals = true;
                     break;
-                }
-
                 }
             }
             if(!withinRangeOfOfZvals){
