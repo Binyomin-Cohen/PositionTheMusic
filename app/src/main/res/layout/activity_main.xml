@@ -30,17 +30,16 @@
         android:layout_gravity="center_horizontal"
         android:visibility="invisible" />
 
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar" />
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/drumpbalt"
-        android:layout_marginTop="80px" />
-
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/seekBar" />
+        android:src="@drawable/drumpbpic" />
 
 </LinearLayout>
