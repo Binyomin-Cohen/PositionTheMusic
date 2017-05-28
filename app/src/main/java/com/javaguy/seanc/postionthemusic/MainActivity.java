@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //else
         if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
 
-            double zval = event.values[2];
+            double zval = -event.values[2];
 
           //  tv.setText(" " + zval  );
 
