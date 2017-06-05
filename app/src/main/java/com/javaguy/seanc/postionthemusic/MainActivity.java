@@ -9,9 +9,6 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -26,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mOrientation;
     private Sensor mAcceleration;
     private Sensor mProximitySensor;
+
+    int ACCELEROMETER_THRESHOLD;
 
     TextView tv;
     ImageView imageView;
@@ -64,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+
+        ACCELEROMETER_THRESHOLD = -10;
        // mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         mediaPlayers = new MediaPlayer[10];
@@ -74,19 +75,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         //the rotation vector values have a range of 2, ie from -1 to 1
-        double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
-      //  double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
+      //  double rangeOfNote = 2.0 / numOfSounds;  //this would divide the whole range evenly
+        double rangeOfNote = 1.0 / numOfSounds; // the divides half the rotation range, a more compact instrument set
 
         maxZvalsList = new ArrayList<Double>();
-        double maxZVal = -0.99 + rangeOfNote;
+        double maxZVal = 0 + rangeOfNote;
         for(int i = 0; i < numOfSounds; i ++ ){
             maxZvalsList.add(maxZVal);
             maxZVal += rangeOfNote;
         }
 
 
-
-        Log.d("ZValList", maxZvalsList.toString());
 
 
 
@@ -126,32 +125,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //else
         if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
 
-            double zval = -event.values[2];
+            double zval = - event.values[2];
 
-          //  tv.setText(" " + zval  );
+            double zvalDuplicateRange = zval < 0 ? zval + 1: zval;
 
-
-            float howMuch = 180 * ( (float)zval + 1 ) - 90;
-
-            seekBar.setProgress(Math.round((float)((zval + 1) * 50)));
+            seekBar.setProgress( Math.round( (float)( zvalDuplicateRange * 100  )));
 
             ;
-            boolean withinRangeOfOfZvals = false;
             for(int i = 0; i < maxZvalsList.size(); i++){
-                if(zval < maxZvalsList.get(i)){
+                if(zvalDuplicateRange < maxZvalsList.get(i)){
                     setCurrentResourceId(soundFilesList.get(i));
-                    withinRangeOfOfZvals = true;
                     break;
                 }
-            }
-            if(!withinRangeOfOfZvals){
-                setCurrentResourceId(0);
             }
         }
         else {
             float previousAccelerometerZ = getAccelerometerZVal();
             setAccelerometerZVal(event.values[2]);
-            if( currentResourceId > 0 &&  previousAccelerometerZ > -7 && getAccelerometerZVal() < -7){
+            if( currentResourceId > 0 &&  previousAccelerometerZ > ACCELEROMETER_THRESHOLD && getAccelerometerZVal() < ACCELEROMETER_THRESHOLD){
                 for(int i = 0; i < mediaPlayers.length; ++i){
                     if(mediaPlayers[i] == null){
                         mediaPlayer = MediaPlayer.create(context, getCurrentResourceId());
